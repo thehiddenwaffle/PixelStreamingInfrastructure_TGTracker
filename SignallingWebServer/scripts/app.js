@@ -41,7 +41,7 @@ let rAF = window.mozRequestAnimationFrame ||
 
 let webRtcPlayerObj = null;
 let print_stats = false;
-let print_inputs = false;
+let print_inputs = true;
 let connect_on_load = false;
 let ws;
 const WS_OPEN_STATE = 1;
@@ -190,6 +190,11 @@ function populateDefaultProtocol() {
         "byteLength": 0,
         "structure": []
     });
+    toStreamerMessages.add("ARData", {
+        "id": 52,
+        "byteLength": 0,
+        "structure": []
+    });
     // Keyboard Input Message. Range = 60..69.
     toStreamerMessages.add("KeyDown", {
         "id": 60,
@@ -330,8 +335,9 @@ function registerMessageHandlers() {
     registerMessageHandler(MessageDirection.ToStreamer, "LatencyTest", sendMessageToStreamer);
     registerMessageHandler(MessageDirection.ToStreamer, "RequestInitialSettings", sendMessageToStreamer);
     registerMessageHandler(MessageDirection.ToStreamer, "TestEcho", () => { /* Do nothing */});
-    registerMessageHandler(MessageDirection.ToStreamer, "UIInteraction", emitUIInteraction);
     registerMessageHandler(MessageDirection.ToStreamer, "Command", emitCommand);
+    registerMessageHandler(MessageDirection.ToStreamer, "UIInteraction", emitUIInteraction);
+    registerMessageHandler(MessageDirection.ToStreamer, "ARData", emitARData);
     registerMessageHandler(MessageDirection.ToStreamer, "KeyDown", sendMessageToStreamer);
     registerMessageHandler(MessageDirection.ToStreamer, "KeyUp", sendMessageToStreamer);
     registerMessageHandler(MessageDirection.ToStreamer, "KeyPress", sendMessageToStreamer);
@@ -682,9 +688,9 @@ function fullscreen() {
 }
 
 function onFullscreenChange() {
-	isFullscreen = (document.webkitIsFullScreen 
-		|| document.mozFullScreen 
-		|| (document.msFullscreenElement && document.msFullscreenElement !== null) 
+	isFullscreen = (document.webkitIsFullScreen
+		|| document.mozFullScreen
+		|| (document.msFullscreenElement && document.msFullscreenElement !== null)
 		|| (document.fullscreenElement && document.fullscreenElement !== null));
 
 	let minimize = document.getElementById('minimize');
@@ -1224,7 +1230,7 @@ function processFileContents(view) {
         // File reconstruction
         /**
          * Example code to reconstruct the file
-         * 
+         *
          * This code reconstructs the received data into the original file based on the mime type and extension provided and then downloads the reconstructed file
          */
         var received = new Blob(file.data, { type: file.mimetype });
@@ -1694,7 +1700,7 @@ function invalidateFreezeFrameOverlay() {
         freezeFrame.valid = false;
         freezeFrameOverlay.classList.remove("freezeframeBackground");
     }, freezeFrameDelay);
-    
+
     if (webRtcPlayerObj) {
         webRtcPlayerObj.setVideoEnabled(true);
     }
@@ -1801,7 +1807,7 @@ function updateVideoStreamSize() {
             return;
 
         let descriptor = {
-            "Resolution.Width": playerElement.clientWidth, 
+            "Resolution.Width": playerElement.clientWidth,
             "Resolution.Height": playerElement.clientHeight
         };
         emitCommand(descriptor);
@@ -1906,6 +1912,11 @@ function emitCommand(descriptor) {
 // streamed UI from the UE client.
 function emitUIInteraction(descriptor) {
     emitDescriptor("UIInteraction", descriptor);
+}
+
+// TODO: Use this
+function emitARData(descriptor) {
+    emitDescriptor("ARData", descriptor);
 }
 
 function requestInitialSettings() {
@@ -2322,7 +2333,7 @@ function registerTouchEvents(playerElement) {
                 console.log(`F${fingerIds[touch.identifier]}=(${x}, ${y})`);
             }
             let coord = normalizeAndQuantizeUnsigned(x, y);
-            
+
             switch(type) {
                 case "TouchStart":
                     toStreamerHandlers.TouchStart("TouchStart", [numTouches, coord.x, coord.y, fingerIds[touch.identifier], MaxByteValue * touch.force, coord.inRange ? 1 : 0]);
@@ -2400,7 +2411,7 @@ function registerTouchEvents(playerElement) {
             }
 
             if (print_inputs) {
-                console.log('touch start');
+                console.log('touch start'+JSON.stringify(e));
             }
             emitTouchData("TouchStart", e.changedTouches);
             e.preventDefault();
@@ -2408,7 +2419,7 @@ function registerTouchEvents(playerElement) {
 
         playerElement.ontouchend = function(e) {
             if (print_inputs) {
-                console.log('touch end');
+                console.log('touch end'+JSON.stringify(e));
             }
             emitTouchData("TouchEnd", e.changedTouches);
 
@@ -2421,7 +2432,7 @@ function registerTouchEvents(playerElement) {
 
         playerElement.ontouchmove = function(e) {
             if (print_inputs) {
-                console.log('touch move');
+                console.log('touch move'+JSON.stringify(e));
             }
             emitTouchData("TouchMove", e.touches);
             e.preventDefault();
@@ -2626,7 +2637,7 @@ function connect() {
             {
                 showTextOverlay(`DISCONNECTED`);
             }
-            
+
 
             let reclickToStart = setTimeout(function(){
                 start(true)
@@ -2676,7 +2687,7 @@ function clearMouseEvents(playerElement) {
 
 function toggleControlScheme() {
     let schemeToggle = document.getElementById("control-scheme-text");
-    
+
     switch (inputOptions.controlScheme) {
         case ControlSchemeType.HoveringMouse:
             inputOptions.controlScheme = ControlSchemeType.LockedMouse;
