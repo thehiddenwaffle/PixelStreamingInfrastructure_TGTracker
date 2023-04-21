@@ -1,6 +1,6 @@
 # Copyright Epic Games, Inc. All Rights Reserved.
 
-. "$PSScriptRoot\Start_Common.ps1" $args
+. "$PSScriptRoot\Start_Common.ps1"
 
 set_start_default_values "n" "y" # Set both TURN and STUN server defaults
 use_args($args)

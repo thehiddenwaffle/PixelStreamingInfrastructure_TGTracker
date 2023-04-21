@@ -1,8 +1,7 @@
 {
-  "name": "@epicgames-ps/pixelstreaming-sfu",
+  "name": "pixelstreaming-sfu",
   "version": "1.0.0",
   "description": "Reference implementation for a PixelStreaming SFU",
-  "private": true,
   "scripts": {
     "start-local": "run-script-os --",
       "start-local:windows": ".\\platform_scripts\\cmd\\run.bat",

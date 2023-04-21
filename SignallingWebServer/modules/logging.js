@@ -29,7 +29,6 @@ const Blue = '\x1b[34m';
 const Magenta = '\x1b[35m';
 const Cyan = '\x1b[36m';
 const White = '\x1b[37m';
-const Orange = '\x1b[38;5;215m';
 
 /**
  * Pad the start of the given number with zeros so it takes up the number of digits.
@@ -61,12 +60,12 @@ function timeToString() {
 
 function RegisterFileLogger(path) {
 	if(path == null)
-		path = './logs/';
+		path = './';
 	
 	if (!fs.existsSync(path))
 		fs.mkdirSync(path);
 	
-	var output = fs.createWriteStream(`${path}${dateTimeToString()}.log`);
+	var output = fs.createWriteStream(`./logs/${dateTimeToString()}.log`);
 	var fileLogger = new Console(output);
 	logFunctions.push(function(msg, ...args) {
 		fileLogger.log(`${timeToString()} ${msg}`, ...args);
@@ -105,6 +104,5 @@ module.exports = {
 	Blue,
 	Magenta,
 	Cyan,
-	White,
-	Orange
+	White
 }
